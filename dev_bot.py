@@ -10,19 +10,36 @@ bot = Bot(token=env('TOKEN'))
 dp = Dispatcher(bot)
 
 
-def create_inline_kb(row_width, *args, **kwargs) -> InlineKeyboardMarkup:
-    inline_kb = InlineKeyboardMarkup(row_width=row_width)
+LEXICON: dict[str, str] = {'but_1': '1',
+                           'but_2': '2',
+                           'but_3': '3',
+                           'but_4': '4',
+                           'but_5': '5'}
+
+BUTTONS: dict[str, str] = {'btn_1': '1',
+                           'btn_2': '2',
+                           'btn_3': '3',
+                           'btn_4': '4',
+                           'btn_5': '5'}
+
+def create_inline_kb(row_width: int, *args, last_btn=None, **kwargs) -> InlineKeyboardMarkup:
+    inline_kb: InlineKeyboardMarkup = InlineKeyboardMarkup(row_width=row_width)
     if args:
-        [inline_kb.insert(InlineKeyboardButton(text=LEXICON_RU[button],
-                                               callback_data=button)) for button in args]
+        [inline_kb.insert(InlineKeyboardButton(
+                            text=LEXICON[button],
+                            callback_data=button)) for button in args]
     if kwargs:
-        [inline_kb.insert(InlineKeyboardButton(text=text,
-                                               callback_data=button)) for button, text in kwargs.items()]
+        [inline_kb.insert(InlineKeyboardButton(
+                            text=text,
+                            callback_data=button)) for button, text in kwargs.items()]
+    if last_btn:
+        inline_kb.add(InlineKeyboardButton(text=last_btn, callback_data='last_btn'))
     return inline_kb
 
 
 async def process_start_command(message: Message):
-    await message.answer(text='inline buttons with url parametr')
+    keyboard = create_inline_kb(3, 'but_1', 'but_2', 'but_3', 'but_4', 'but_5', last_btn='Последняя кнопка')
+    await message.answer(text='inline buttons from function', reply_markup=keyboard)
 
 
 async def process_buttons_press(callback: CallbackQuery):
